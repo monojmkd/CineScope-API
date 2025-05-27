@@ -8,7 +8,13 @@ const {
   validateMovieSearchQuery,
   validateGenreAndActor,
 } = require("../validations/index");
-const { movie, watchlist, wishlist, curatedListItem } = require("../models");
+const {
+  movie,
+  review,
+  watchlist,
+  wishlist,
+  curatedListItem,
+} = require("../models");
 const getMovies = async (req, res) => {
   const errors = validateMovieSearchQuery(req.query);
   if (errors.length > 0) {
@@ -158,13 +164,11 @@ const sortMovies = async (req, res) => {
   }
 
   try {
-    // Step 1: Get all imdbIds from the selected list
     const ListModel = validLists[list];
     const listItems = await ListModel.findAll({ attributes: ["imdbId"] });
 
     const imdbIds = listItems.map((item) => item.imdbId);
 
-    // Step 2: Fetch sorted movies from Movies table
     const movies = await movie.findAll({
       where: { imdbId: imdbIds },
       order: [[sortBy, order.toUpperCase()]],
@@ -176,6 +180,44 @@ const sortMovies = async (req, res) => {
     res.status(500).json({ error: "Failed to sort movies" });
   }
 };
+const getTop5Movies = async (req, res) => {
+  try {
+    const topMovies = await movie.findAll({
+      attributes: ["title", "rating"],
+      order: [["rating", "DESC"]],
+      limit: 5,
+      include: [
+        {
+          model: review,
+          as: "reviews",
+          attributes: ["reviewText", "createdAt"],
+          limit: 1,
+          separate: true,
+          order: [["createdAt", "DESC"]],
+        },
+      ],
+    });
+
+    const result = topMovies.map((movie) => {
+      const latestReview = movie.reviews?.[0];
+      return {
+        title: movie.title,
+        rating: movie.rating,
+        review: latestReview
+          ? {
+              text: latestReview.reviewText,
+              wordCount: latestReview.reviewText.trim().split(/\s+/).length,
+            }
+          : null,
+      };
+    });
+
+    res.status(200).json({ movies: result });
+  } catch (error) {
+    console.error("Error fetching top movies:", error);
+    res.status(500).json({ error: "Failed to fetch top movies" });
+  }
+};
 module.exports = {
   getMovies,
   addToWatchlist,
@@ -183,4 +225,5 @@ module.exports = {
   addToCuratedList,
   getMoviesByGenreAndActor,
   sortMovies,
+  getTop5Movies,
 };

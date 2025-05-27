@@ -8,6 +8,7 @@ const {
   addToCuratedList,
   getMoviesByGenreAndActor,
   sortMovies,
+  getTop5Movies,
 } = require("./controllers/movieController");
 const {
   createCuratedList,
@@ -32,6 +33,8 @@ app.post("/api/movies/:imdbId/reviews", addReview);
 app.get("/api/movies/searchByGenreAndActor", getMoviesByGenreAndActor);
 
 app.get("/api/movies/sort", sortMovies);
+
+app.get("/api/movies/top5", getTop5Movies);
 
 sequelize
   .authenticate()
