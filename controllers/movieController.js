@@ -202,11 +202,14 @@ const getTop5Movies = async (req, res) => {
       const latestReview = movie.reviews?.[0];
       return {
         title: movie.title,
-        rating: movie.rating,
+        rating: movie.rating ?? 0,
         review: latestReview
           ? {
               text: latestReview.reviewText,
-              wordCount: latestReview.reviewText.trim().split(/\s+/).length,
+              wordCount: latestReview.reviewText
+                .trim()
+                .replace(/\s+/g, " ")
+                .split(" ").length,
             }
           : null,
       };

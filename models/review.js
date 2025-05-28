@@ -26,7 +26,10 @@ module.exports = (sequelize, DataTypes) => {
 
   // Associations
   review.associate = (models) => {
-    review.belongsTo(models.movie, { foreignKey: "imdbId" });
+    review.belongsTo(models.movie, {
+      foreignKey: "imdbId",
+      targetKey: "imdbId",
+    });
   };
 
   return review;

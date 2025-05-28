@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allow: false,
         unique: true,
+        primaryKey: true,
       },
       genre: {
         type: DataTypes.TEXT,
@@ -36,7 +37,11 @@ module.exports = (sequelize, DataTypes) => {
 
   // Associations
   movie.associate = (models) => {
-    movie.hasMany(models.review, { foreignKey: "imdbId" });
+    movie.hasMany(models.review, {
+      foreignKey: "imdbId",
+      sourceKey: "imdbId",
+      as: "reviews",
+    });
     movie.hasMany(models.watchlist, { foreignKey: "imdbId" });
     movie.hasMany(models.wishlist, { foreignKey: "imdbId" });
     movie.hasMany(models.curatedListItem, { foreignKey: "imdbId" });
