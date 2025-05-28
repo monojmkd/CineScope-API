@@ -5,7 +5,7 @@ const addReview = async (req, res) => {
   const { imdbId } = req.params;
 
   const error = validateRatingReview({ rating, reviewText });
-  if (error) {
+  if (error.length > 0) {
     return res.json({ error });
   }
 
